@@ -1,4 +1,4 @@
-<project name="SimpleHttpServer" basedir="." default="main">
+<project name="Pluto" basedir="." default="main">
 
     <property name="src.dir"     value="src"/>
 
