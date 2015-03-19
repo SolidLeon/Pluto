@@ -17,28 +17,45 @@ import java.util.List;
 public class SimpleHTTPServer implements Runnable {
 
     private int port = 2345;
+    private String baseDir = ".";
 
 	public static void main(String[] args) {
         int port = 2345;
+        String baseDir = ".";
 
-        try {
-            port = Integer.parseInt(args[0]);
-        } catch (Exception ex) {
-            System.err.println("Error parsing command line");
-            System.err.println("USAGE: java -jar Pluto.jar <port>");
+        if (args.length > 0) {
+            try {
+                port = Integer.parseInt(args[0]);
+            } catch (Exception ex) {
+                System.err.println("Error parsing command line");
+                System.err.println("USAGE: java -jar Pluto.jar <port> <baseDir>");
+            }
         }
 
-        new Thread(new SimpleHTTPServer(port)).start();
+        if (args.length > 1) {
+            baseDir = args[1];
+        }
+
+        new Thread(new SimpleHTTPServer(port, baseDir)).start();
 	}
 
-    public SimpleHTTPServer(int port) {
+    public SimpleHTTPServer(int port, String baseDir) {
         this.port = port;
+        this.baseDir = baseDir;
     }
 
     @Override
     public void run() {
+
+        File baseDirFile = new File(baseDir);
+        if (!baseDirFile.exists() || !baseDirFile.isDirectory()) {
+            throw new RuntimeException("Base dir must be an existing directory!");
+        }
+
+
         try (ServerSocket server = new ServerSocket(port)) {
             System.out.println("SERVER BOUND TO " + port);
+            System.out.println("Web-Root: '" + baseDirFile.getAbsolutePath() + "'");
             while (true) {
                 try (Socket socket = server.accept()) {
 
@@ -51,7 +68,7 @@ public class SimpleHTTPServer implements Runnable {
 
                     System.out.println("REQUEST FILE:  '" + requestFile + "'");
                     try (BufferedOutputStream out = new BufferedOutputStream(socket.getOutputStream())) {
-                        File file = new File("C:\\DEPLOYMENT\\public\\" + requestFile);
+                        File file = new File(baseDirFile, requestFile);
                         if (file.exists()) {
                             out.write(	("HTTP/1.1 200 OK \r\n"+
                                         "Content-Type: text/plain\r\n"+
