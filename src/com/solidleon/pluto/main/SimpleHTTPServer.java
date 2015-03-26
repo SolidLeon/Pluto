@@ -12,11 +12,11 @@ import java.nio.file.Files;
 public class SimpleHTTPServer implements Runnable {
 
     private int port = 2345;
-    private String baseDir = ".";
+    private String webRootDir = ".";
 
 	public static void main(String[] args) {
         int port = 2345;
-        String baseDir = ".";
+        String webRootDir = ".";
 
         if (args.length > 0) {
             try {
@@ -28,23 +28,23 @@ public class SimpleHTTPServer implements Runnable {
         }
 
         if (args.length > 1) {
-            baseDir = args[1];
+            webRootDir = args[1];
         }
 
-        new Thread(new SimpleHTTPServer(port, baseDir)).start();
+        new Thread(new SimpleHTTPServer(port, webRootDir)).start();
 	}
 
-    public SimpleHTTPServer(int port, String baseDir) {
+    public SimpleHTTPServer(int port, String webRootDir) {
         this.port = port;
-        this.baseDir = baseDir;
+        this.webRootDir = webRootDir;
     }
 
     @Override
     public void run() {
 
-        File baseDirFile = new File(baseDir);
+        File baseDirFile = new File(webRootDir);
         if (!baseDirFile.exists() || !baseDirFile.isDirectory()) {
-            throw new RuntimeException("Base dir must be an existing directory!");
+            throw new RuntimeException("Web root must be an existing directory!");
         }
 
 
@@ -84,7 +84,6 @@ public class SimpleHTTPServer implements Runnable {
                 }
             }
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
